@@ -5,52 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatGPT Chatbot</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        #chatbox {
-            width: 80%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .user-message {
-            background-color: #d1e7dd;
-            text-align: right;
-        }
-
-        .bot-message {
-            background-color: #f8d7da;
-        }
-
-        #input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            resize: none;
-            /* Disable manual resize */
-            overflow: hidden;
-        }
-
-        #send {
-            padding: 10px 20px;
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="static/css/styles.css">
 </head>
 
 <body>
     <div id="chatbox">
         <div id="messages"></div>
         <textarea id="input" placeholder="Type your message here..."></textarea>
+        <input type="file" id="file" />
         <button id="send">Send</button>
     </div>
 

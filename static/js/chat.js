@@ -1,4 +1,3 @@
-// Adjust the height of the textarea dynamically
 document.getElementById('input').addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
@@ -15,47 +14,54 @@ document.getElementById('input').addEventListener('keydown', function (e) {
 
 function submit() {
     let input = document.getElementById('input').value;
-    if (input.trim() === '') return;
+    let file = document.getElementById('file').files[0];
+    if (input.trim() === '' && !file) return;
 
-    console.log("User input:", input);  // Print user input to the console
+    console.log("User input:", input);
 
     let messageContainer = document.createElement('div');
     messageContainer.classList.add('message', 'user-message');
     messageContainer.textContent = input;
     document.getElementById('messages').appendChild(messageContainer);
 
-    // Send the user input via a POST request
+    let formData = new FormData();
+    formData.append('message', input);
+    if (file) {
+        formData.append('file', file);
+        console.log("File uploaded:", file.name);
+    }
+
     fetch('/send', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: input })
+        body: formData
     }).then(response => {
-        console.log("Fetch response status:", response.status);  // Print fetch response status
+        console.log("Fetch response status:", response.status);
         return response.json();
     }).then(data => {
-        //console.log("Fetch response data:", data);  // Print fetch response data
-        setupEventSource(); // Initialize EventSource after the fetch request completes
+        setupEventSource();
     }).catch(error => {
-        console.error("Fetch error:", error);  // Print fetch error
+        console.error("Fetch error:", error);
     });
 
     document.getElementById('input').value = '';
-    document.getElementById('input').style.height = 'auto'; // Reset height
+    document.getElementById('input').style.height = 'auto';
+    document.getElementById('file').value = ''; // Reset file input
+}
+
+function decodeBase64(text) {
+    return atob(text);
 }
 
 function setupEventSource() {
-    // Set up the EventSource connection
     const eventSource = new EventSource('/chat');
 
     eventSource.onopen = function () {
-        console.log("EventSource connection opened.");  // Log when the connection is opened
+        console.log("EventSource connection opened.");
     };
 
     eventSource.onerror = function (error) {
-        console.error("EventSource error:", error);  // Log any connection errors
-        eventSource.close();  // Close the EventSource connection on error
+        console.error("EventSource error:", error);
+        eventSource.close();
     };
 
     let botMessageContainer = null;
@@ -64,10 +70,16 @@ function setupEventSource() {
     eventSource.onmessage = function (event) {
         console.log("Received event data:", event.data);
 
+        event.data.replace(/\n/g, '<br>');
+
+        if (event.data === '') {
+            console.log("Received empty string. Replacing with newline.");
+            event.data = '\n';
+        }
+
         if (event.data === '\0') {
             console.log("Received EOT character. Closing EventSource connection.");
             eventSource.close();
-            // Update the session with the full assistant response
             fetch('/update_session', {
                 method: 'POST',
                 headers: {
@@ -85,9 +97,17 @@ function setupEventSource() {
             botMessageContainer.classList.add('message', 'bot-message');
             document.getElementById('messages').appendChild(botMessageContainer);
         }
-        botMessageContainer.textContent += event.data;
-        fullResponse += event.data
-        // Scroll to the bottom of the chatbox
+        // Decode the base64-encoded data
+        const decodedResponse = JSON.parse(event.data);
+
+        // Append the decoded data to the full response
+        fullResponse += decodedResponse;
+        console.log(fullResponse)
+        //fullResponse += event.data
+        //fullResponse = fullResponse.replace("\\n", '<br>');
+        
+        fullResponse = fullResponse.replace(/\\n/g, '<br>');
+        botMessageContainer.innerHTML = `<pre>${fullResponse}</pre>`;
         document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     };
 }

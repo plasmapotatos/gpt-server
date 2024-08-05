@@ -1,0 +1,45 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#chatbox {
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.user-message {
+    background-color: #d1e7dd;
+    text-align: right;
+}
+
+.bot-message {
+    background-color: #f8d7da;
+}
+
+#input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    resize: none;
+    overflow: hidden;
+}
+
+#file {
+    margin-top: 10px;
+}
+
+#send {
+    padding: 10px 20px;
+    margin-top: 10px;
+}
+
+pre {
+    white-space: pre-wrap;
+}
